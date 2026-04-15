@@ -1,11 +1,32 @@
 public class QuantityMeasurementApp {
 
-    // Feet Class
-    public static class Feet {
-        private final double value;
+    // ENUM for units
+    public enum LengthUnit {
+        FEET(1.0),
+        INCH(1.0 / 12.0);
 
-        public Feet(double value) {
+        private final double conversionFactor;
+
+        LengthUnit(double conversionFactor) {
+            this.conversionFactor = conversionFactor;
+        }
+
+        public double toFeet(double value) {
+            return value * conversionFactor;
+        }
+    }
+
+    // Generic Quantity Class
+    public static class Quantity {
+        private final double value;
+        private final LengthUnit unit;
+
+        public Quantity(double value, LengthUnit unit) {
+            if (unit == null) {
+                throw new IllegalArgumentException("Unit cannot be null");
+            }
             this.value = value;
+            this.unit = unit;
         }
 
         @Override
@@ -13,42 +34,21 @@ public class QuantityMeasurementApp {
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
 
-            Feet feet = (Feet) obj;
-            return Double.compare(this.value, feet.value) == 0;
+            Quantity other = (Quantity) obj;
+
+            double thisInFeet = this.unit.toFeet(this.value);
+            double otherInFeet = other.unit.toFeet(other.value);
+
+            return Double.compare(thisInFeet, otherInFeet) == 0;
         }
     }
 
-    // Inches Class (NEW in UC2)
-    public static class Inches {
-        private final double value;
-
-        public Inches(double value) {
-            this.value = value;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-
-            Inches inches = (Inches) obj;
-            return Double.compare(this.value, inches.value) == 0;
-        }
-    }
-
-    // Separate methods (IMPORTANT for UC2)
-    public static boolean compareFeet(double a, double b) {
-        return new Feet(a).equals(new Feet(b));
-    }
-
-    public static boolean compareInches(double a, double b) {
-        return new Inches(a).equals(new Inches(b));
-    }
-
-    // Main method
+    // Main
     public static void main(String[] args) {
 
-        System.out.println("Feet equality: " + compareFeet(1.0, 1.0));
-        System.out.println("Inches equality: " + compareInches(1.0, 1.0));
+        Quantity q1 = new Quantity(1.0, LengthUnit.FEET);
+        Quantity q2 = new Quantity(12.0, LengthUnit.INCH);
+
+        System.out.println("Equal? " + q1.equals(q2));
     }
 }
